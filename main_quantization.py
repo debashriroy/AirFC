@@ -44,7 +44,7 @@ train_set = datasets.MNIST('../data', train=True, transform=trans, download=True
 test_set = datasets.MNIST('../data', train=False, transform=trans, download=True)
 
 train_loader = torch.utils.data.DataLoader(train_set, batch_size=batch_size, shuffle=True)
-test_loader = torch.utils.data.DataLoader(test_set, batch_size=batch_size, shuffle=True)
+test_loader = torch.utils.data.DataLoader(test_set, batch_size=batch_size, shuffle=True, drop_last = True)
 
 
 
@@ -149,6 +149,10 @@ def train(model, device, train_loader, optimizer, epoch):
 eval_losses = []
 eval_accu = []
 
+input_x_all = []
+hidden_x_all = []
+out_x_all = []
+
 
 def test(model, device, test_loader, optimizer, epoch):
     model.eval()
@@ -162,6 +166,10 @@ def test(model, device, test_loader, optimizer, epoch):
             data, target = data.to(device).type(torch.complex64), target.to(device)
 
             outputs, input_x, hidden_x, out_x = model(data)
+
+            input_x_all.append(input_x.cpu().detach().numpy())
+            hidden_x_all.append(hidden_x.cpu().detach().numpy())
+            out_x_all.append(out_x.cpu().detach().numpy())
 
             loss = F.nll_loss(outputs, target)
             running_loss += loss.item()
@@ -177,19 +185,19 @@ def test(model, device, test_loader, optimizer, epoch):
     eval_accu.append(accu)
 
     print('Test Loss: %.3f | Accuracy: %.3f' % (test_loss, accu))
-    return input_x, hidden_x, out_x
+    return input_x_all, hidden_x_all, out_x_all
 
-input_x_all =[]
-hidden_x_all = []
-out_x_all = []
 
 # Run training on 20 epochs
 for epoch in range(args.epochs):
     train(model, device, train_loader, optimizer, epoch)
-    input_x, hidden_x, out_x = test(model, device, test_loader, optimizer, epoch)
-    input_x_all.append(input_x.cpu().detach().numpy())
-    hidden_x_all.append(hidden_x.cpu().detach().numpy())
-    out_x_all.append(out_x.cpu().detach().numpy())
+    # input_x, hidden_x, out_x = test(model, device, test_loader, optimizer, epoch)
+    # input_x_all.append(input_x.cpu().detach().numpy())
+    # hidden_x_all.append(hidden_x.cpu().detach().numpy())
+    # out_x_all.append(out_x.cpu().detach().numpy())
+
+input_x_all, hidden_x_all, out_x_all = test(model, device, test_loader, optimizer, epoch)
+
 
 torch.save(model, 'mnist.pt')
 print("Final MODEL: ")
