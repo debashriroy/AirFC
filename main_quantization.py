@@ -22,17 +22,17 @@ import sys
 
 parser = argparse.ArgumentParser(description='Configure the files before training the net.')
 parser.add_argument('--id_gpu', default=1, type=int, help='which gpu to use.')
-parser.add_argument('--epochs', default=200, type = int, help='Specify the epochs to train')
+parser.add_argument('--epochs', default=50, type = int, help='Specify the epochs to train')
 parser.add_argument('--lr', default=0.0001, type=float,help='learning rate for Adam optimizer',)
 parser.add_argument('--bs',default=64, type=int,help='Batch size')
 parser.add_argument('--hidden_elements', help='Number of hidden elements in the complex neural network architecture', type=int,default = 32)
 
 parser.add_argument('--setSize', default=16, type=int, help='')
-parser.add_argument('--quantization', action='store_true', default=True, help='whether to use quantization')
+parser.add_argument('--quantization', action='store_true', default=False, help='whether to use quantization')
 parser.add_argument('--noiseVar', default=None, type=float, help='Noise Gaussian Variance')
 parser.add_argument('--weightVar', default=None, type=float, help='Weight Gaussian Variance')
 parser.add_argument('--pruning', action='store_true', default=False, help='mask zeros and fine tune')
-parser.add_argument('--pruningRate', default=0.92, type=float, help='prune ratio for each layer')
+parser.add_argument('--pruningRate', default=0.5, type=float, help='prune ratio for each layer: 0 (no pruning)')
 
 args = parser.parse_args()
 print('Argument parser inputs', args)
@@ -68,17 +68,15 @@ class ComplexNet(nn.Module):
         super(ComplexNet, self).__init__()
         # self.conv1 = ComplexConv1d(4, 4, 1, 1) # in_channels, out_channels, kernel_size, stride, padding, dilation, groups, bias
         # self.conv2 = ComplexConv1d(4, 4, 1, 1)
-        self.fc1 = ComplexLinearNoise(784, args.hidden_elements, realNoiseVar=args.noiseVar, imgNoiseVar=args.noiseVar,
-                                      realWeightVar=args.weightVar,
-                                      imgWeightVar=args.weightVar,
+        self.fc1 = ComplexLinearNoise(784, args.hidden_elements, realNoiseVar=1e-4, imgNoiseVar=1e-4, realWeightVar=1e-4,
+                                      imgWeightVar=1e-4,
                                       quant=args.quantization,
                                       pruning=args.pruning,
                                       pruningRate=args.pruningRate,
                                       setSize=args.setSize, bias = False)
 
-        self.out = ComplexLinearNoise(args.hidden_elements, 10, realNoiseVar=args.noiseVar, imgNoiseVar=args.noiseVar,
-                                      realWeightVar=args.weightVar,
-                                      imgWeightVar=args.weightVar,
+        self.out = ComplexLinearNoise(args.hidden_elements, 10, realNoiseVar=1e-4, imgNoiseVar=1e-4, realWeightVar=1e-4,
+                                      imgWeightVar=1e-4,
                                       quant=args.quantization,
                                       pruning=args.pruning,
                                       pruningRate=args.pruningRate,
@@ -94,11 +92,12 @@ class ComplexNet(nn.Module):
         # xi = torch.imag(x)
         # xi = xi.view(-1, (1024-20+2) * 50)
         inpt_x = x.view(x.size(0), -1)
-        hidden_xr, hidden_xi = self.fc1(torch.real(inpt_x), torch.imag(inpt_x)) # First hidden layer
+        hidden_xr_inter, hidden_xi_inter = self.fc1(torch.real(inpt_x), torch.imag(inpt_x)) # First hidden layer
+        hidden_xr, hidden_xi = complex_relu(hidden_xr_inter, hidden_xi_inter)
         out_xr, out_xi = self.out(hidden_xr, hidden_xi)
-        xr, xi = complex_relu(out_xr, out_xi)
+        # xr, xi = complex_relu(out_xr, out_xi)
         # x = x.abs()
-        x = torch.sqrt(torch.pow(xr, 2) + torch.pow(xi, 2))
+        x = torch.sqrt(torch.pow(out_xr, 2) + torch.pow(out_xi, 2))
         x = F.log_softmax(x, dim=1)
         # print('Final Shape: ', x.shape)
         hidden_x = torch.sqrt(torch.pow(hidden_xr, 2) + torch.pow(hidden_xi, 2))

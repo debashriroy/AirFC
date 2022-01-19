@@ -157,14 +157,19 @@ class LinearNoise(nn.Linear):
             # w = w + n.to(w.device)
             w = w + n.to(w.device)
 
-            if (inputSize * self.pruningRate) > self.numRIS:
-                for i in range(
-                        int(np.ceil((np.log(inputSize) * self.pruningRate) / np.log(self.numRIS))) - 1):
-                    w = w * (
-                            1 + torch.randn(w.size()) * torch.sqrt(self.varWeights)).to(w.device)
+
+            # if (inputSize * self.pruningRate) > self.numRIS:
+            #     for i in range(
+            #             int(np.ceil((np.log(inputSize) * self.pruningRate) / np.log(self.numRIS))) - 1):
+            #         w = w * (
+            #                 1 + torch.randn(w.size()) * torch.sqrt(self.varWeights)).to(w.device)
         #
         # print(torch.max(w), torch.min(w))
         output = F.linear(input, w) # removed bias
+
+        if self.varNoise is not None:
+            z = torch.randn(1, output.size()[1]) * torch.sqrt(self.varNoise)
+            return output + z.to(output.device)
 
         return output
 

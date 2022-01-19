@@ -73,14 +73,14 @@ class ComplexNet(nn.Module):
         # print("Shape3: ", x.shape)
         inpt_x = x.view(x.size(0), -1)
         # print("Shape4: ", x.shape)
-        hiddn_x = self.fc1(inpt_x) # First hidden layer
+        hiddn_x = complex_relu(self.fc1(inpt_x)) # First hidden layer
         # print("Shape5: ", x.shape)
         # x = complex_relu(x)
         # x = self.fc2(x) # Second hidden layer
         # print("Values after first hidden layer: ", x)
         out_x = self.out(hiddn_x)
         # print("Values after output layer: ", x)
-        x = complex_relu(out_x)
+        # x = complex_relu(out_x)
         x = x.abs()
         x = F.log_softmax(x, dim=1)
         # print('Final Shape: ', x.shape)

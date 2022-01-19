@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.io import loadmat
-model_weights = loadmat('model_weights_16.mat') # Give the corresponding name
+model_weights = loadmat('quantized/model_weights_16.mat') # Give the corresponding name
 # for key in model_weights.keys():
 #     # print(key, model_weights[key])
 #     print("type: ", type(model_weights[key]))
@@ -8,7 +8,7 @@ print("Model Keys are: ", model_weights.keys())
 weight_keys = list(model_weights.keys())
 print("Shape of the model weights: ", model_weights[weight_keys[5]].shape, model_weights[weight_keys[6]].shape)
 
-model_inputs = loadmat('model_inputs_16.mat') # Give the corresponding name
+model_inputs = loadmat('quantized/model_inputs_16.mat') # Give the corresponding name
 # for key in model_inputs.keys():
 #     # print(key, model_inputs[key])
 #     print("type: ", type(model_inputs[key]))
