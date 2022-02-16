@@ -1,0 +1,85 @@
+Train Epoch:  95 [     0/ 60000 (  0%)] Loss: 0.293027
+Train Epoch:  95 [  6400/ 60000 ( 11%)] Loss: 0.191972
+Train Epoch:  95 [ 12800/ 60000 ( 21%)] Loss: 0.459065
+Train Epoch:  95 [ 19200/ 60000 ( 32%)] Loss: 0.237280
+Train Epoch:  95 [ 25600/ 60000 ( 43%)] Loss: 0.319430
+Train Epoch:  95 [ 32000/ 60000 ( 53%)] Loss: 0.340377
+Train Epoch:  95 [ 38400/ 60000 ( 64%)] Loss: 0.208896
+Train Epoch:  95 [ 44800/ 60000 ( 75%)] Loss: 0.363869
+Train Epoch:  95 [ 51200/ 60000 ( 85%)] Loss: 0.348033
+Train Epoch:  95 [ 57600/ 60000 ( 96%)] Loss: 0.413303
+Train Epoch:  96 [     0/ 60000 (  0%)] Loss: 0.119187
+Train Epoch:  96 [  6400/ 60000 ( 11%)] Loss: 0.113282
+Train Epoch:  96 [ 12800/ 60000 ( 21%)] Loss: 0.143579
+Train Epoch:  96 [ 19200/ 60000 ( 32%)] Loss: 0.139963
+Train Epoch:  96 [ 25600/ 60000 ( 43%)] Loss: 0.336086
+Train Epoch:  96 [ 32000/ 60000 ( 53%)] Loss: 0.500054
+Train Epoch:  96 [ 38400/ 60000 ( 64%)] Loss: 0.187722
+Train Epoch:  96 [ 44800/ 60000 ( 75%)] Loss: 0.230893
+Train Epoch:  96 [ 51200/ 60000 ( 85%)] Loss: 0.206011
+Train Epoch:  96 [ 57600/ 60000 ( 96%)] Loss: 0.225750
+Train Epoch:  97 [     0/ 60000 (  0%)] Loss: 0.209133
+Train Epoch:  97 [  6400/ 60000 ( 11%)] Loss: 0.259856
+Train Epoch:  97 [ 12800/ 60000 ( 21%)] Loss: 0.219100
+Train Epoch:  97 [ 19200/ 60000 ( 32%)] Loss: 0.183536
+Train Epoch:  97 [ 25600/ 60000 ( 43%)] Loss: 0.379498
+Train Epoch:  97 [ 32000/ 60000 ( 53%)] Loss: 0.623443
+Train Epoch:  97 [ 38400/ 60000 ( 64%)] Loss: 0.288345
+Train Epoch:  97 [ 44800/ 60000 ( 75%)] Loss: 0.200058
+Train Epoch:  97 [ 51200/ 60000 ( 85%)] Loss: 0.193638
+Train Epoch:  97 [ 57600/ 60000 ( 96%)] Loss: 0.323747
+Train Epoch:  98 [     0/ 60000 (  0%)] Loss: 0.244096
+Train Epoch:  98 [  6400/ 60000 ( 11%)] Loss: 0.154784
+Train Epoch:  98 [ 12800/ 60000 ( 21%)] Loss: 0.261910
+Train Epoch:  98 [ 19200/ 60000 ( 32%)] Loss: 0.279270
+Train Epoch:  98 [ 25600/ 60000 ( 43%)] Loss: 0.145730
+Train Epoch:  98 [ 32000/ 60000 ( 53%)] Loss: 0.374462
+Train Epoch:  98 [ 38400/ 60000 ( 64%)] Loss: 0.326358
+Train Epoch:  98 [ 44800/ 60000 ( 75%)] Loss: 0.296886
+Train Epoch:  98 [ 51200/ 60000 ( 85%)] Loss: 0.171369
+Train Epoch:  98 [ 57600/ 60000 ( 96%)] Loss: 0.158126
+Train Epoch:  99 [     0/ 60000 (  0%)] Loss: 0.313151
+Train Epoch:  99 [  6400/ 60000 ( 11%)] Loss: 0.150733
+Train Epoch:  99 [ 12800/ 60000 ( 21%)] Loss: 0.255752
+Train Epoch:  99 [ 19200/ 60000 ( 32%)] Loss: 0.323450
+Train Epoch:  99 [ 25600/ 60000 ( 43%)] Loss: 0.166280
+Train Epoch:  99 [ 32000/ 60000 ( 53%)] Loss: 0.216070
+Train Epoch:  99 [ 38400/ 60000 ( 64%)] Loss: 0.355016
+Train Epoch:  99 [ 44800/ 60000 ( 75%)] Loss: 0.347006
+Train Epoch:  99 [ 51200/ 60000 ( 85%)] Loss: 0.248878
+Train Epoch:  99 [ 57600/ 60000 ( 96%)] Loss: 0.278572
+Test Loss: 0.246 | Accuracy: 92.899
+Shapes of returned elements:  (156, 64, 784) (156, 64, 784) (156, 64, 784)
+Final MODEL:
+ComplexNet(
+  (fc1): ComplexLinear(
+    (fc_r): Linear(in_features=784, out_features=16, bias=False)
+    (fc_i): Linear(in_features=784, out_features=16, bias=False)
+  )
+  (out): ComplexLinear(
+    (fc_r): Linear(in_features=16, out_features=10, bias=False)
+    (fc_i): Linear(in_features=16, out_features=10, bias=False)
+  )
+)
+Model's state_dict:
+fc1.fc_r.weight          torch.Size([16, 784])
+fc1.fc_i.weight          torch.Size([16, 784])
+out.fc_r.weight          torch.Size([10, 16])
+out.fc_i.weight          torch.Size([10, 16])
+__header__ ()
+__version__ ()
+__globals__ (0,)
+fc1.fc_r.weight (16, 784)
+fc1.fc_i.weight (16, 784)
+out.fc_r.weight (10, 16)
+out.fc_i.weight (10, 16)
+Model Keys are:  dict_keys(['__header__', '__version__', '__globals__', 'fc1.fc_r.weight', 'fc1.fc_i.weight', 'out.fc_r.weight', 'out.fc_i.weight'])
+Model's state_dict:
+__header__ ()
+__version__ ()
+__globals__ (0,)
+input_x (156, 64, 784)
+hidden_x (156, 64, 16)
+out_x (156, 64, 10)
+y (156, 64)
+Input Keys are:  dict_keys(['__header__', '__version__', '__globals__', 'input_x', 'hidden_x', 'out_x', 'y'])

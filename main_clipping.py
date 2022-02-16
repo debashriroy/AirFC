@@ -17,7 +17,7 @@ parser.add_argument('--id_gpu', default=1, type=int, help='which gpu to use.')
 parser.add_argument('--epochs', default=100, type = int, help='Specify the epochs to train')
 parser.add_argument('--lr', default=0.0001, type=float,help='learning rate for Adam optimizer',)
 parser.add_argument('--bs',default=64, type=int,help='Batch size')
-parser.add_argument('--hidden_elements', help='Number of hidden elements in the complex neural network architecture', type=int,default = 32)
+parser.add_argument('--hidden_elements', help='Number of hidden elements in the complex neural network architecture', type=int,default = 16)
 # parser.add_argument('--model_file_name', help='Name of trained model file', type=str,default = 'model_weights')
 # parser.add_argument('--data_file_name', help='Name of the file storing the inputs', type=str,default = '')
 
@@ -71,17 +71,17 @@ class ComplexNet(nn.Module):
         # x = complex_relu(x)
         # x = complex_max_pool2d(x, 2, 2)
         # print("Shape3: ", x.shape)
-        inpt_x = x.view(x.size(0), -1)
-        # print("Shape4: ", x.shape)
+        inpt_x = x.view(x.shape[0], -1)
+        # print("Shape after view: ", inpt_x.shape)
         hiddn_x = complex_relu(self.fc1(inpt_x)) # First hidden layer
         # print("Shape5: ", x.shape)
         # x = complex_relu(x)
         # x = self.fc2(x) # Second hidden layer
         # print("Values after first hidden layer: ", x)
         out_x = self.out(hiddn_x)
-        # print("Values after output layer: ", x)
+        # print("Shape after hidden layer: ", out_x.shape)
         # x = complex_relu(out_x)
-        x = x.abs()
+        x = out_x.abs()
         x = F.log_softmax(x, dim=1)
         # print('Final Shape: ', x.shape)
         return x, inpt_x, hiddn_x, out_x
@@ -131,6 +131,7 @@ eval_accu = []
 input_x_all = []
 hidden_x_all = []
 out_x_all = []
+ground_truths = []
 
 def test(model, device, test_loader, optimizer, epoch):
     model.eval()
@@ -160,6 +161,8 @@ def test(model, device, test_loader, optimizer, epoch):
             total += target.size(0)
             correct += predicted.eq(target).sum().item()
 
+            ground_truths.append(target.cpu().detach().numpy())
+
     test_loss = running_loss / len(test_loader)
     accu = 100. * correct / total
 
@@ -172,7 +175,7 @@ def test(model, device, test_loader, optimizer, epoch):
     # print("total shapes: ", np.array(hidden_x_all).shape)
     # print("Total shapes: ", np.array(out_x_all).shape)
 
-    return input_x_all, hidden_x_all, out_x_all
+    return input_x_all, hidden_x_all, out_x_all, ground_truths
 
 
 
@@ -181,7 +184,7 @@ for epoch in range(args.epochs):
     train(model, device, train_loader, optimizer, epoch)
 
 # testing after final round
-input_x_all, hidden_x_all, out_x_all = test(model, device, test_loader, optimizer, epoch)
+input_x_all, hidden_x_all, out_x_all, ground_truths = test(model, device, test_loader, optimizer, epoch)
 
 print("Shapes of returned elements: ", np.array(input_x_all).shape, np.array(input_x_all).shape, np.array(input_x_all).shape)
 
@@ -223,6 +226,7 @@ input_dic = {}
 input_dic['input_x'] = input_x_all
 input_dic['hidden_x'] = hidden_x_all
 input_dic['out_x'] = out_x_all
+input_dic['y'] = ground_truths
 
 
 savemat("matfiles/model_inputs_"+str(args.hidden_elements)+".mat", input_dic)

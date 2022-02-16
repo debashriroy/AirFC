@@ -1,0 +1,60 @@
+Train Epoch:  97 [ 25600/ 60000 ( 43%)] Loss: 0.235677
+Train Epoch:  97 [ 32000/ 60000 ( 53%)] Loss: 0.266147
+Train Epoch:  97 [ 38400/ 60000 ( 64%)] Loss: 0.167066
+Train Epoch:  97 [ 44800/ 60000 ( 75%)] Loss: 0.173557
+Train Epoch:  97 [ 51200/ 60000 ( 85%)] Loss: 0.234960
+Train Epoch:  97 [ 57600/ 60000 ( 96%)] Loss: 0.157568
+Train Epoch:  98 [     0/ 60000 (  0%)] Loss: 0.276775
+Train Epoch:  98 [  6400/ 60000 ( 11%)] Loss: 0.278110
+Train Epoch:  98 [ 12800/ 60000 ( 21%)] Loss: 0.185956
+Train Epoch:  98 [ 19200/ 60000 ( 32%)] Loss: 0.259852
+Train Epoch:  98 [ 25600/ 60000 ( 43%)] Loss: 0.297937
+Train Epoch:  98 [ 32000/ 60000 ( 53%)] Loss: 0.311532
+Train Epoch:  98 [ 38400/ 60000 ( 64%)] Loss: 0.112262
+Train Epoch:  98 [ 44800/ 60000 ( 75%)] Loss: 0.321168
+Train Epoch:  98 [ 51200/ 60000 ( 85%)] Loss: 0.389822
+Train Epoch:  98 [ 57600/ 60000 ( 96%)] Loss: 0.282792
+Train Epoch:  99 [     0/ 60000 (  0%)] Loss: 0.251622
+Train Epoch:  99 [  6400/ 60000 ( 11%)] Loss: 0.301041
+Train Epoch:  99 [ 12800/ 60000 ( 21%)] Loss: 0.295870
+Train Epoch:  99 [ 19200/ 60000 ( 32%)] Loss: 0.208673
+Train Epoch:  99 [ 25600/ 60000 ( 43%)] Loss: 0.237429
+Train Epoch:  99 [ 32000/ 60000 ( 53%)] Loss: 0.179384
+Train Epoch:  99 [ 38400/ 60000 ( 64%)] Loss: 0.205024
+Train Epoch:  99 [ 44800/ 60000 ( 75%)] Loss: 0.171598
+Train Epoch:  99 [ 51200/ 60000 ( 85%)] Loss: 0.218146
+Train Epoch:  99 [ 57600/ 60000 ( 96%)] Loss: 0.262947
+Test Loss: 0.235 | Accuracy: 93.309
+Shapes of returned elements:  (156, 64, 784) (156, 64, 784) (156, 64, 784)
+Final MODEL:
+ComplexNet(
+  (fc1): ComplexLinear(
+    (fc_r): Linear(in_features=784, out_features=32, bias=False)
+    (fc_i): Linear(in_features=784, out_features=32, bias=False)
+  )
+  (out): ComplexLinear(
+    (fc_r): Linear(in_features=32, out_features=10, bias=False)
+    (fc_i): Linear(in_features=32, out_features=10, bias=False)
+  )
+)
+Model's state_dict:
+fc1.fc_r.weight          torch.Size([32, 784])
+fc1.fc_i.weight          torch.Size([32, 784])
+out.fc_r.weight          torch.Size([10, 32])
+out.fc_i.weight          torch.Size([10, 32])
+__header__ ()
+__version__ ()
+__globals__ (0,)
+fc1.fc_r.weight (32, 784)
+fc1.fc_i.weight (32, 784)
+out.fc_r.weight (10, 32)
+out.fc_i.weight (10, 32)
+Model Keys are:  dict_keys(['__header__', '__version__', '__globals__', 'fc1.fc_r.weight', 'fc1.fc_i.weight', 'out.fc_r.weight', 'out.fc_i.weight'])
+Model's state_dict:
+__header__ ()
+__version__ ()
+__globals__ (0,)
+input_x (156, 64, 784)
+hidden_x (156, 64, 32)
+out_x (156, 64, 10)
+y (156, 64)

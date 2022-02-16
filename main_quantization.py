@@ -151,6 +151,7 @@ eval_accu = []
 input_x_all = []
 hidden_x_all = []
 out_x_all = []
+ground_truths = []
 
 
 def test(model, device, test_loader, optimizer, epoch):
@@ -177,6 +178,8 @@ def test(model, device, test_loader, optimizer, epoch):
             total += target.size(0)
             correct += predicted.eq(target).sum().item()
 
+            ground_truths.append(target.cpu().detach().numpy())
+
     test_loss = running_loss / len(test_loader)
     accu = 100. * correct / total
 
@@ -184,7 +187,7 @@ def test(model, device, test_loader, optimizer, epoch):
     eval_accu.append(accu)
 
     print('Test Loss: %.3f | Accuracy: %.3f' % (test_loss, accu))
-    return input_x_all, hidden_x_all, out_x_all
+    return input_x_all, hidden_x_all, out_x_all, ground_truths
 
 
 # Run training on 20 epochs
@@ -195,7 +198,7 @@ for epoch in range(args.epochs):
     # hidden_x_all.append(hidden_x.cpu().detach().numpy())
     # out_x_all.append(out_x.cpu().detach().numpy())
 
-input_x_all, hidden_x_all, out_x_all = test(model, device, test_loader, optimizer, epoch)
+input_x_all, hidden_x_all, out_x_all, ground_truths  = test(model, device, test_loader, optimizer, epoch)
 
 
 torch.save(model, 'mnist.pt')
@@ -232,6 +235,7 @@ input_dic = {}
 input_dic['input_x'] = input_x_all
 input_dic['hidden_x'] = hidden_x_all
 input_dic['out_x'] = out_x_all
+input_dic['y'] = ground_truths
 
 
 savemat("matfiles/model_inputs_"+str(args.hidden_elements)+".mat", input_dic)
