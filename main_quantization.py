@@ -21,8 +21,8 @@ import argparse
 import sys
 
 parser = argparse.ArgumentParser(description='Configure the files before training the net.')
-parser.add_argument('--id_gpu', default=1, type=int, help='which gpu to use.')
-parser.add_argument('--epochs', default=50, type = int, help='Specify the epochs to train')
+parser.add_argument('--id_gpu', default=0, type=int, help='which gpu to use.')
+parser.add_argument('--epochs', default=100, type = int, help='Specify the epochs to train')
 parser.add_argument('--lr', default=0.0001, type=float,help='learning rate for Adam optimizer',)
 parser.add_argument('--bs',default=64, type=int,help='Batch size')
 parser.add_argument('--hidden_elements', help='Number of hidden elements in the complex neural network architecture', type=int,default = 32)
@@ -193,15 +193,11 @@ def test(model, device, test_loader, optimizer, epoch):
 # Run training on 20 epochs
 for epoch in range(args.epochs):
     train(model, device, train_loader, optimizer, epoch)
-    # input_x, hidden_x, out_x = test(model, device, test_loader, optimizer, epoch)
-    # input_x_all.append(input_x.cpu().detach().numpy())
-    # hidden_x_all.append(hidden_x.cpu().detach().numpy())
-    # out_x_all.append(out_x.cpu().detach().numpy())
 
 input_x_all, hidden_x_all, out_x_all, ground_truths  = test(model, device, test_loader, optimizer, epoch)
 
 
-torch.save(model, 'mnist.pt')
+torch.save(model, 'mnist_noise.pt')
 print("Final MODEL: ")
 print(model)
 
@@ -215,9 +211,9 @@ for param_tensor in model.state_dict():
     print(param_tensor, "\t", model.state_dict()[param_tensor].size())
     mdic[param_tensor] = model.state_dict()[param_tensor].cpu().detach().numpy()
 
-savemat("matfiles/model_weights_"+str(args.hidden_elements)+".mat", mdic)
+savemat("matfiles/model_weights_"+str(args.hidden_elements)+"_noise.mat", mdic)
 from scipy.io import loadmat
-model_weights = loadmat("matfiles/model_weights_"+str(args.hidden_elements)+".mat")
+model_weights = loadmat("matfiles/model_weights_"+str(args.hidden_elements)+"_noise.mat")
 # for key in model_weights.keys():
 #     print(key, model_weights[key])
 for key in model_weights.keys():
@@ -238,9 +234,9 @@ input_dic['out_x'] = out_x_all
 input_dic['y'] = ground_truths
 
 
-savemat("matfiles/model_inputs_"+str(args.hidden_elements)+".mat", input_dic)
+savemat("matfiles/model_inputs_"+str(args.hidden_elements)+"_noise.mat", input_dic)
 from scipy.io import loadmat
-model_inputs = loadmat("matfiles/model_inputs_"+str(args.hidden_elements)+".mat")
+model_inputs = loadmat("matfiles/model_inputs_"+str(args.hidden_elements)+"_noise.mat")
 # for key in model_inputs.keys():
 #     print(key, np.array(model_inputs[key]))
 for key in model_inputs.keys():
