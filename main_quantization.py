@@ -21,7 +21,7 @@ import argparse
 import sys
 
 parser = argparse.ArgumentParser(description='Configure the files before training the net.')
-parser.add_argument('--id_gpu', default=0, type=int, help='which gpu to use.')
+parser.add_argument('--id_gpu', default=1, type=int, help='which gpu to use.')
 parser.add_argument('--epochs', default=100, type = int, help='Specify the epochs to train')
 parser.add_argument('--lr', default=0.0001, type=float,help='learning rate for Adam optimizer',)
 parser.add_argument('--bs',default=64, type=int,help='Batch size')
@@ -93,15 +93,19 @@ class ComplexNet(nn.Module):
         # xi = xi.view(-1, (1024-20+2) * 50)
         inpt_x = x.view(x.size(0), -1)
         hidden_xr_inter, hidden_xi_inter = self.fc1(torch.real(inpt_x), torch.imag(inpt_x)) # First hidden layer
-        hidden_xr, hidden_xi = complex_relu(hidden_xr_inter, hidden_xi_inter)
+        # hidden_xr, hidden_xi = complex_relu(hidden_xr_inter, hidden_xi_inter)
+        hidden_xr, hidden_xi = hidden_xr_inter, hidden_xi_inter
         out_xr, out_xi = self.out(hidden_xr, hidden_xi)
         # xr, xi = complex_relu(out_xr, out_xi)
         # x = x.abs()
-        x = torch.sqrt(torch.pow(out_xr, 2) + torch.pow(out_xi, 2))
+
+        x = torch.sqrt(torch.pow(out_xr, 2) + torch.pow(out_xi, 2)) # take the absolute value as output
         x = F.log_softmax(x, dim=1)
-        # print('Final Shape: ', x.shape)
-        hidden_x = torch.sqrt(torch.pow(hidden_xr, 2) + torch.pow(hidden_xi, 2))
-        out_x = torch.sqrt(torch.pow(out_xr, 2) + torch.pow(out_xi, 2))
+
+        # hidden_x = torch.sqrt(torch.pow(hidden_xr, 2) + torch.pow(hidden_xi, 2))
+        # out_x = torch.sqrt(torch.pow(out_xr, 2) + torch.pow(out_xi, 2))
+        hidden_x = hidden_xr + 1j*hidden_xi
+        out_x = out_xr + 1j * out_xi
 
         return x, inpt_x, hidden_x, out_x
 
