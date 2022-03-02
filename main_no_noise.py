@@ -13,7 +13,7 @@ import argparse
 import sys
 
 parser = argparse.ArgumentParser(description='Configure the files before training the net.')
-parser.add_argument('--id_gpu', default=1, type=int, help='which gpu to use.')
+parser.add_argument('--id_gpu', default=0, type=int, help='which gpu to use.')
 parser.add_argument('--epochs', default=100, type = int, help='Specify the epochs to train')
 parser.add_argument('--lr', default=0.0001, type=float,help='learning rate for Adam optimizer',)
 parser.add_argument('--bs',default=64, type=int,help='Batch size')
@@ -47,6 +47,7 @@ class WeightClipper(object):
         if hasattr(module, 'weight'):
             w = module.weight.data
             w = w.clamp(-1,1)
+            module.weight.data = w
 
 
 class ComplexNet(nn.Module):
