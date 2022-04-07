@@ -40,7 +40,7 @@ else: air_out = np.zeros((total_examples,64,10), dtype=np.complex64) # OTA out
 
 for i in range(0,total_examples):
     if args.setting == 'out': ex = loadmat(input_path+'OTA_data\\example'+str(i)+'.mat')
-    elif args.setting == 'fc': ex = loadmat(input_path + 'FC_input_16Tx_re_noise\\example' + str(i) + '.mat')
+    elif args.setting == 'fc': ex = loadmat(input_path + 'FC_input_16Tx_re_noise2\\example' + str(i) + '.mat')
     else: pass
     air_out[i] = ex['out_symbols']
 
@@ -160,9 +160,15 @@ input_dic['y'] = model_inputs['y'][0:total_examples]
 input_dic['ota_y'] = pred_y
 
 
-savemat(input_path+input_file_name+"_with_prediction.mat", input_dic)
+if args.setting == 'out':
+    stored_file = input_path + input_file_name + "_out_with_prediction.mat"
+elif args.setting == 'fc':
+    stored_file = input_path + input_file_name + "_fc_noise2_with_prediction.mat"
+else:
+    stored_file = input_path + input_file_name + "_e2e_with_prediction.mat"
+savemat(stored_file, input_dic)
 from scipy.io import loadmat
-model_inputs_evaluate = loadmat(input_path+input_file_name+"_with_prediction.mat")
+model_inputs_evaluate = loadmat(stored_file)
 # for key in model_inputs.keys():
 #     print(key, np.array(model_inputs[key]))
 for key in model_inputs_evaluate.keys():
