@@ -198,7 +198,7 @@ def test(model, device, test_loader, optimizer, epoch):
 for epoch in range(args.epochs):
     train(model, device, train_loader, optimizer, epoch)
 
-input_x_all, hidden_x_all, out_x_all, ground_truths  = test(model, device, test_loader, optimizer, epoch)
+input_x_all, hidden_x_all, out_x_all, ground_truths = test(model, device, test_loader, optimizer, epoch)
 
 
 torch.save(model, 'mnist_noise.pt')
