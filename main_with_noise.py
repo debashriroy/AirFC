@@ -60,6 +60,7 @@ class WeightClipper(object):
         if hasattr(module, 'weight'):
             w = module.weight.data
             w = w.clamp(-1,1)
+            module.weight.data = w
 
 
 class ComplexNet(nn.Module):
