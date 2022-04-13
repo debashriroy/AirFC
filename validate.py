@@ -9,7 +9,7 @@ from complexPyTorch.complexLayers_yanyu import  ComplexLinear, ComplexLinearNois
 import argparse
 
 parser = argparse.ArgumentParser(description='Configure the parameters for validating the OTA output for AirCNN project.')
-parser.add_argument('--setting', type=str, default='fc', choices = ['fc', 'out', 'e2e'],
+parser.add_argument('--setting', type=str, default='e2e', choices = ['fc', 'out', 'e2e'],
 help='Which layer is being validated through the over-the-air transmission: fc (first layer), out (second layer), e2e (both layers).')
 
 args = parser.parse_args()
@@ -41,7 +41,7 @@ else: air_out = np.zeros((total_examples,64,10), dtype=np.complex64) # OTA out
 for i in range(0,total_examples):
     if args.setting == 'out': ex = loadmat(input_path+'OTA_data\\example'+str(i)+'.mat')
     elif args.setting == 'fc': ex = loadmat(input_path + 'FC_input_16Tx_re_noise2\\example' + str(i) + '.mat')
-    else: pass
+    else: ex = loadmat(input_path + 'FC_final_16Tx_noise2\\example' + str(i) + '.mat')
     air_out[i] = ex['out_symbols']
 
 print(air_out.shape)
@@ -98,8 +98,8 @@ class ValidateNetFC(nn.Module):
 device = torch.device('cpu')
 # print("CUDA AVAILABILITY: ", torch.cuda.is_available())
 if args.setting == 'fc': model = ValidateNetFC().to(device)
-elif args.setting == 'out': model = ValidateNetOUT().to(device)
-else: exit(0)
+else: model = ValidateNetOUT().to(device)
+# else:  model = ValidateNetOUT().to(device)
 pred_y = []
 print(model)
 # print(model.out)
@@ -165,7 +165,7 @@ if args.setting == 'out':
 elif args.setting == 'fc':
     stored_file = input_path + input_file_name + "_fc_noise2_with_prediction.mat"
 else:
-    stored_file = input_path + input_file_name + "_e2e_with_prediction.mat"
+    stored_file = input_path + input_file_name + "_e2e_noise2_with_prediction.mat"
 savemat(stored_file, input_dic)
 from scipy.io import loadmat
 model_inputs_evaluate = loadmat(stored_file)
