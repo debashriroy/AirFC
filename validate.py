@@ -9,7 +9,7 @@ from complexPyTorch.complexLayers_yanyu import  ComplexLinear, ComplexLinearNois
 import argparse
 
 parser = argparse.ArgumentParser(description='Configure the parameters for validating the OTA output for AirCNN project.')
-parser.add_argument('--setting', type=str, default='e2e', choices = ['fc', 'out', 'e2e'],
+parser.add_argument('--setting', type=str, default='digital', choices = ['digital', 'fc', 'out', 'e2e'],
 help='Which layer is being validated through the over-the-air transmission: fc (first layer), out (second layer), e2e (both layers).')
 
 args = parser.parse_args()
@@ -33,19 +33,29 @@ for key in model_weights.keys():
     print(key)
 
 if args.setting == 'fc': logical_out = model_inputs['hidden_x'][0:total_examples] # OTA out  for re-transmission
+elif args.setting == 'digital': logical_out = model_inputs['input_x'][0:total_examples]
 else: logical_out = model_inputs['out_x'][0:total_examples]
 original_out = model_inputs['y'][0:total_examples]  # original data out
 if args.setting == 'fc': air_out = np.zeros((total_examples,64,16), dtype=np.complex64) # OTA out  for re-transmission
+elif args.setting == 'digital': air_out = np.zeros((total_examples,64,784), dtype=np.complex64) # OTA out  for re-transmission
 else: air_out = np.zeros((total_examples,64,10), dtype=np.complex64) # OTA out
 
 for i in range(0,total_examples):
-    if args.setting == 'out': ex = loadmat(input_path+'OTA_data\\example'+str(i)+'.mat')
-    elif args.setting == 'fc': ex = loadmat(input_path + 'FC_input_16Tx_re_noise2\\example' + str(i) + '.mat')
-    else: ex = loadmat(input_path + 'FC_final_16Tx_noise2\\example' + str(i) + '.mat')
-    air_out[i] = ex['out_symbols']
+    if args.setting == 'out':
+        ex = loadmat(input_path+'OTA_data\\example'+str(i)+'.mat')
+        air_out[i] = ex['out_symbols']
+    elif args.setting == 'fc':
+        ex = loadmat(input_path + 'FC_input_16Tx_re_noise2\\example' + str(i) + '.mat')
+        air_out[i] = ex['out_symbols']
+    elif args.setting == 'e2e':
+        ex = loadmat(input_path + 'FC_final_16Tx_noise2\\example' + str(i) + '.mat')
+        air_out[i] = ex['out_symbols']
+    else: air_out[i] = model_inputs['input_x'][i]
 
-print(air_out.shape)
-print(logical_out.shape)
+
+print("Shape of the input to the validation pipeline: ", air_out.shape)
+print("Shape of logical output: ", logical_out.shape)
+print("Shape of original output: ", original_out.shape)
 
 # VALIDATE NET
 class ValidateNetOUT(nn.Module):
@@ -68,8 +78,8 @@ class ValidateNetFC(nn.Module):
         super(ValidateNetFC, self).__init__()
         # self.out = ComplexLinear(16, 10) # ADDED TO TEST RE-TRANSMISSION ACCURACY
 
-        self.out = ComplexLinearNoise(16, 10, realNoiseVar=1e-4, imgNoiseVar=1e-4, realWeightVar=1e-4,
-                                      imgWeightVar=1e-4,
+        self.out = ComplexLinearNoise(16, 10, realNoiseVar=0, imgNoiseVar=0, realWeightVar=0,
+                                      imgWeightVar=0,
                                       quant=False,
                                       pruning=False,
                                       pruningRate=0.5,
@@ -87,6 +97,40 @@ class ValidateNetFC(nn.Module):
         # print('Final Shape: ', x.shape)
         return x
 
+# VALIDATE NET
+class ValidateNetTOTAL(nn.Module):
+
+    def __init__(self):
+        super(ValidateNetTOTAL, self).__init__()
+        # self.out = ComplexLinear(16, 10) # ADDED TO TEST RE-TRANSMISSION ACCURACY
+        self.fc1 = ComplexLinearNoise(784, 16, realNoiseVar=0, imgNoiseVar=0, realWeightVar=0,
+                                      imgWeightVar=0,
+                                      quant=False,
+                                      pruning=False,
+                                      pruningRate=0.5,
+                                      setSize=16, bias=False)
+
+        self.out = ComplexLinearNoise(16, 10, realNoiseVar=0, imgNoiseVar=0, realWeightVar=0,
+                                      imgWeightVar=0,
+                                      quant=False,
+                                      pruning=False,
+                                      pruningRate=0.5,
+                                      setSize=16, bias=False)  # ADDED TO TEST RE-TRANSMISSION ACCURACY
+
+    def forward(self, x):
+        # x = complex_relu(x)
+
+        # x = self.out(x)  # ADDED TO TEST RE-TRANSMISSION ACCURACY
+        # x = x.abs()
+        inpt_x = x.view(x.size(0), -1)
+        hidden_xr, hidden_xi = self.fc1(torch.real(inpt_x), torch.imag(inpt_x))
+        xr, xi = self.out(hidden_xr, hidden_xi) # ADDED TO TEST RE-TRANSMISSION ACCURACY
+        x = torch.sqrt(torch.pow(xr, 2) + torch.pow(xi, 2)) # ADDED TO TEST RE-TRANSMISSION ACCURACY
+
+        x = F.log_softmax(x, dim=1)
+        # print('Final Shape: ', x.shape)
+        return x
+
 
 # SETTING UP MODEL PARAMETERS
 # os.environ['PYTHONHASHSEED']=str(1234)
@@ -98,6 +142,7 @@ class ValidateNetFC(nn.Module):
 device = torch.device('cpu')
 # print("CUDA AVAILABILITY: ", torch.cuda.is_available())
 if args.setting == 'fc': model = ValidateNetFC().to(device)
+elif args.setting == 'digital': model = ValidateNetTOTAL().to(device)
 else: model = ValidateNetOUT().to(device)
 # else:  model = ValidateNetOUT().to(device)
 pred_y = []
@@ -112,6 +157,11 @@ def test(model, device):
     total = 0
 
     with torch.no_grad():
+        if args.setting == 'digital':
+            model.fc1.fc_r.weight = nn.Parameter(torch.from_numpy(model_weights['fc1.fc_r.weight']))
+            model.fc1.fc_i.weight = nn.Parameter(torch.from_numpy(model_weights['fc1.fc_i.weight']))
+            model.out.fc_r.weight = nn.Parameter(torch.from_numpy(model_weights['out.fc_r.weight']))
+            model.out.fc_i.weight = nn.Parameter(torch.from_numpy(model_weights['out.fc_i.weight']))
         if args.setting == 'fc':
             model.out.fc_r.weight = nn.Parameter(torch.from_numpy(model_weights['out.fc_r.weight']))
             model.out.fc_i.weight = nn.Parameter(torch.from_numpy(model_weights['out.fc_i.weight']))
