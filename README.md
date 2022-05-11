@@ -1,4 +1,4 @@
-# Implementation of complexPyTorch for AirCNN project
+# Implementation of complexPyTorch for AirFC project
 
 This repository is to generate the trained model to validate over the air computation for AirCNN project. 
 
