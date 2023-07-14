@@ -1,4 +1,4 @@
-# Implementation of Neural Network Training for AirFC project
+# Implementation of Neural Network Training for AirFC Project
 
 This repository is to generate the trained model to validate over the air computation for fully connected neural network. The project used the widely used MNIST dataset for the handwritten digital recognition.  The overall goal of thit github repo is to generate the model weights after training a complex-valued neural netowrk to validate the over the air analog computation resembling a fully connected neural network in real testbed setup. 
 
